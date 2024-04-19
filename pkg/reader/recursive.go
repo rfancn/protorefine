@@ -21,10 +21,7 @@ func (rc *RecursiveChecker) traverse(pbPkgName string, currentMsgDescriptor *des
 	// if curren msg descriptor exists in nested then ignore it
 	// because protoc_gen will compile it as expected
 	for _, t := range currentMsgDescriptor.GetNestedMessageTypes() {
-		focusedType := getToBeCheckedMessageType(pbPkgName, t)
-		if focusedType != nil {
-			rc.nestedNames[focusedType.GetFullyQualifiedName()] = struct{}{}
-		}
+		rc.nestedNames[t.GetFullyQualifiedName()] = struct{}{}
 	}
 
 	current := getToBeCheckedMessageType(pbPkgName, currentMsgDescriptor)
