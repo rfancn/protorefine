@@ -25,17 +25,31 @@ func (rc *RecursiveChecker) traverse(pbPkgName string, currentMsgDescriptor *des
 	}
 
 	if _, exists := rc.nestedNames[currentMsgDescriptor.GetFullyQualifiedName()]; !exists {
-		rc.founds = append(rc.founds, currentMsgDescriptor)
+		if currentMsgDescriptor.GetFile().GetPackage() == pbPkgName {
+			rc.founds = append(rc.founds, currentMsgDescriptor)
+		}
 	}
 
 	for _, field := range currentMsgDescriptor.GetFields() {
-		if field.GetFile().GetPackage() == pbPkgName {
-			switch field.GetType() {
-			case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+		switch field.GetType() {
+		case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+			// avoid recursive definition
+			// message AreaNode{
+			//  ...
+			//  AreaNode children = 1;
+			//  ...
+			// }
+			parent := field.GetParent().GetFullyQualifiedName()
+			owner := field.GetOwner().GetFullyQualifiedName()
+			if parent != owner {
 				rc.traverse(pbPkgName, field.GetMessageType())
-			case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
+			}
+
+		case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
+			if field.GetFile().GetPackage() == pbPkgName {
 				rc.founds = append(rc.founds, field.GetEnumType())
 			}
 		}
+
 	}
 }
