@@ -101,7 +101,8 @@ func genProtoFile(arg *argument) error {
 		return errors.Wrap(err, "get pb types from project")
 	}
 
-	pbTypeDefs, err := reader.New(arg.pbImportPath).ExtractTypeDefs(arg.protoDir, pbTypeNames)
+	pbPkgName := filepath.Base(arg.pbImportPath)
+	pbTypeDefs, err := reader.New(pbPkgName).ExtractTypeDefs(arg.protoDir, pbTypeNames)
 	if err != nil {
 		return errors.Wrap(err, "get proto pb type definitions")
 	}
