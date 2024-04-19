@@ -2,6 +2,7 @@ package reader
 
 import (
 	"fmt"
+	"github.com/elliotchance/pie/v2"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"os"
@@ -116,7 +117,7 @@ func (r pbReader) guess(pbType string) (string, []desc.Descriptor) {
 			// recursively search descendant message types and enums
 			checker := newRecursiveChecker()
 			checker.traverse(r.pbPkgName, descriptor)
-			return checkType, checker.founds
+			return checkType, pie.Values(checker.founds)
 		}
 
 		if descriptor, exist := r.type2enumDescriptor[checkType]; exist {

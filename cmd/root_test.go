@@ -30,7 +30,11 @@ func Test_genProtoFile(t *testing.T) {
 				utils.Fatalf(err, "validate argument")
 			}
 
-			_ = genProtoFile(arg)
+			err = genProtoFile(arg)
+			if err != nil {
+				utils.Fatalf(err, "generate proto file")
+			}
+
 		})
 	}
 }
