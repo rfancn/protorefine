@@ -32,8 +32,10 @@ func (rc *RecursiveChecker) traverse(pbPkgName string, currentMsgDescriptor *des
 		return
 	}
 
-	if !rc.contains(current) {
-		rc.founds[current.GetFullyQualifiedName()] = current
+	if _, exists1 := rc.nestedNames[current.GetFullyQualifiedName()]; !exists1 {
+		if _, exists2 := rc.founds[current.GetFullyQualifiedName()]; !exists2 {
+			rc.founds[current.GetFullyQualifiedName()] = current
+		}
 	}
 
 	for _, field := range current.GetFields() {
@@ -50,27 +52,17 @@ func (rc *RecursiveChecker) traverse(pbPkgName string, currentMsgDescriptor *des
 			//  AreaNode children = 1;
 			//  ...
 			// }
-			if !rc.contains(next) {
+			if _, exists := rc.founds[next.GetFullyQualifiedName()]; !exists {
 				rc.traverse(pbPkgName, next)
 			}
 		case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
 			v := field.GetEnumType()
-			if !rc.contains(v) {
+			if _, exists := rc.founds[v.GetFullyQualifiedName()]; !exists {
 				rc.founds[v.GetFullyQualifiedName()] = v
 			}
 		}
 
 	}
-}
-
-func (rc *RecursiveChecker) contains(d desc.Descriptor) bool {
-	descName := d.GetFullyQualifiedName()
-	if _, exists1 := rc.nestedNames[descName]; !exists1 {
-		if _, exists2 := rc.founds[descName]; !exists2 {
-			return false
-		}
-	}
-	return true
 }
 
 func getToBeCheckedMessageType(pbPkgName string, d *desc.MessageDescriptor) *desc.MessageDescriptor {
