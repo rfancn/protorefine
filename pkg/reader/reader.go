@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 type ProtoReader interface {
@@ -40,9 +41,15 @@ func (r pbReader) ExtractTypeDefs(protoDir string, pbTypeNames []string) ([]*PbT
 	// filter duplicate pbTypeName corresponding descriptors
 	type2descriptors := make(map[string][]desc.Descriptor)
 	for _, pbTypeName := range pbTypeNames {
-		foundType, foundDescriptors := r.recursiveSearch(pbTypeName)
+		foundType, foundDescriptors := r.guess(pbTypeName)
 		if len(foundDescriptors) == 0 {
-			return nil, fmt.Errorf("pb definition %s not found", pbTypeName)
+			// protoc_gen may generate the protobuf type in source code with different naming convention
+			// e,g: it capitalized the first character of the word
+			// we should check this case, pb.TheWord ==> message theWord {}
+			foundType, foundDescriptors = r.guess(convertFirstLetterToLower(pbTypeName))
+			if len(foundDescriptors) == 0 {
+				return nil, fmt.Errorf("pb definition %s not found", pbTypeName)
+			}
 		}
 
 		if _, exists := type2descriptors[foundType]; !exists {
@@ -96,11 +103,12 @@ func (r pbReader) readProtoDescriptors(protoDir string) error {
 			r.type2enumDescriptor[t.GetName()] = t
 		}
 	}
+
 	return nil
 }
 
-// recursiveSearch split the name to words and recursive to find if pb type can be found
-func (r pbReader) recursiveSearch(pbType string) (string, []desc.Descriptor) {
+// guess split the name to words and recursive from end to begin to find if pb type can be found
+func (r pbReader) guess(pbType string) (string, []desc.Descriptor) {
 	words := splitWords(pbType)
 	for i := len(words); i > 0; i-- {
 		checkType := strings.Join(words[:i], "")
@@ -117,7 +125,14 @@ func (r pbReader) recursiveSearch(pbType string) (string, []desc.Descriptor) {
 			}
 		}
 	}
+
 	return "", nil
+}
+
+func convertFirstLetterToLower(s string) string {
+	r := []rune(s)
+	r[0] = unicode.ToLower(r[0])
+	return string(r)
 }
 
 func findProtoFiles(baseDir string) ([]string, error) {
