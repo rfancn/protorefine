@@ -1,0 +1,11 @@
+[import]
+    [[import.rules]]
+        match="gogoproto\\.+"
+        file="gogo/protobuf/gogoproto/gogo.proto"
+        dependents= ["google/protobuf/descriptor.proto"]
+    [[import.rules]]
+        match="hdsdk.protobuf\\.+"
+        file="hdsdk/protobuf/sdk.proto"
+    [[import.rules]]
+        match="google.protobuf.Any"
+        file="google/protobuf/any.proto"
