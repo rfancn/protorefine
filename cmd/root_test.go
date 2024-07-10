@@ -16,10 +16,10 @@ func Test_genProtoFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			arg = &argument{
-				projectDir:   "D:\\codes\\hdmall\\backend\\product",
-				protoDir:     "D:\\codes\\hdmall\\backend\\proto",
-				pbImportPath: "product/autogen/pb",
-				outputDir:    "autogen/proto",
+				projectDir:   "D:\\Codes\\hdmall\\backend\\auth",
+				protoDir:     "D:\\Codes\\hdmall\\common\\proto",
+				pbImportPath: "auth/autogen/pb",
+				outputDir:    "D:\\Codes\\hdmall\\backend\\auth\\autogen\\proto",
 				skipDirs:     []string{"autogen"},
 			}
 

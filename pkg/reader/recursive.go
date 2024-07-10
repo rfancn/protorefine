@@ -6,33 +6,23 @@ import (
 )
 
 type RecursiveChecker struct {
-	nestedNames map[string]struct{}
-	founds      map[string]desc.Descriptor
+	founds map[string]desc.Descriptor
 }
 
 func newRecursiveChecker() *RecursiveChecker {
 	return &RecursiveChecker{
-		nestedNames: make(map[string]struct{}),
-		founds:      make(map[string]desc.Descriptor),
+		founds: make(map[string]desc.Descriptor),
 	}
 }
 
 func (rc *RecursiveChecker) traverse(pbPkgName string, currentMsgDescriptor *desc.MessageDescriptor) {
-	// if curren msg descriptor exists in nested then ignore it
-	// because protoc_gen will compile it as expected
-	for _, t := range currentMsgDescriptor.GetNestedMessageTypes() {
-		rc.nestedNames[t.GetFullyQualifiedName()] = struct{}{}
-	}
-
 	current := getToBeCheckedMessageType(pbPkgName, currentMsgDescriptor)
 	if current == nil {
 		return
 	}
 
-	if _, exists1 := rc.nestedNames[current.GetFullyQualifiedName()]; !exists1 {
-		if _, exists2 := rc.founds[current.GetFullyQualifiedName()]; !exists2 {
-			rc.founds[current.GetFullyQualifiedName()] = current
-		}
+	if _, exists := rc.founds[current.GetFullyQualifiedName()]; !exists {
+		rc.founds[current.GetFullyQualifiedName()] = current
 	}
 
 	for _, field := range current.GetFields() {
