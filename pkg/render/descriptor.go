@@ -18,7 +18,7 @@ func newProtoRenderDescriptor(importFiles []string, pbTypeDefs []*reader.PbTypeD
 
 	// sort pb type defs
 	pbTypeDefs = pie.SortUsing(pbTypeDefs, func(a, b *reader.PbTypeDef) bool {
-		return a.Name < b.Name
+		return a.Name < b.Name && a.Kind < b.Kind
 	})
 
 	for i, pbTypeDef := range pbTypeDefs {
