@@ -10,8 +10,8 @@ type PbTypeKind int
 
 const (
 	PbDeclarationKindUnknown = iota
-	PbTypeKindMessage
 	PbTypeKindEnum
+	PbTypeKindMessage
 )
 
 type PbTypeDef struct {
