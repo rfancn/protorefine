@@ -9,3 +9,6 @@
     [[import.rules]]
         match="google.protobuf.Any"
         file="google/protobuf/any.proto"
+    [[import.rules]]
+        match="google.protobuf.Struct"
+        file="google/protobuf/struct.proto"
